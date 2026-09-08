@@ -3,61 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para Bori</title>
+    <title>Corazón Morado 3D</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap');
-
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            /* Fondo elegante oscuro */
-            background: radial-gradient(circle at center, #1b000b 0%, #000000 100%);
+            /* Fondo azul oscuro elegante */
+            background: radial-gradient(circle at center, #0d1b2a 0%, #02040a 100%);
         }
 
         canvas {
             display: block;
         }
-
-        /* Contenedor del texto centrado */
-        #texto-elegante {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* Estilo para el nombre */
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 6rem;
-            margin: 0;
-            font-style: italic;
-            font-weight: 600;
-            letter-spacing: 2px;
-            /* Degradado dorado y oro rosa */
-            background: linear-gradient(45deg, #ffd700, #ffb6c1, #ffffff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0px 0px 30px rgba(255, 182, 193, 0.4);
-            animation: flotar 4s ease-in-out infinite;
-        }
-
-        /* Animación suave de flotación */
-        @keyframes flotar {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-        }
     </style>
 </head>
 <body>
-
-    <div id="texto-elegante">
-        <h1>Bori</h1>
-    </div>
 
     <canvas id="canvas"></canvas>
 
@@ -74,7 +35,7 @@
         resize();
 
         const particulas = [];
-        const numLuces = 3000; // Cantidad perfecta para mantener un 3D sólido y fluido
+        const numLuces = 3000; // Mantenemos la cantidad para un 3D sólido
 
         // Generamos el corazón usando la ecuación matemática 3D de Taubin
         while (particulas.length < numLuces) {
@@ -90,17 +51,19 @@
             let a = x2 + 2.25 * y2 + z2 - 1;
             let valor = (a * a * a) - (x2 * (z2 * z)) - (0.1125 * y2 * (z2 * z));
             
-            // Creamos un grosor (volumen de la cáscara del corazón)
+            // Creamos el volumen de la cáscara del corazón
             if (valor <= 0.0 && valor > -0.2) {
-                // Colores elegantes
-                let tonoHSL = Math.random() < 0.5 ? 340 + Math.random() * 20 : 35 + Math.random() * 15; 
-                let brillo = 50 + Math.random() * 50;
+                // Generamos colores entre violeta, lila, púrpura y morado
+                // En la rueda de color HSL, estos tonos están entre el 260 y el 310
+                let tono = 260 + Math.random() * 50; 
+                let saturacion = 70 + Math.random() * 30; // Colores vivos (70% - 100%)
+                let luz = 50 + Math.random() * 35; // Desde morados profundos a lilas claros
                 
                 particulas.push({
                     baseX: x,
                     baseY: y, // Profundidad
                     baseZ: z, // Altura
-                    color: `hsl(${tonoHSL}, 80%, ${brillo}%)`,
+                    color: `hsl(${tono}, ${saturacion}%, ${luz}%)`,
                     size: Math.random() * 1.8 + 0.8
                 });
             }
@@ -109,53 +72,50 @@
         let anguloGiro = 0;
 
         function animar() {
-            // Limpiamos el frame anterior suavemente
-            ctx.fillStyle = 'rgba(20, 0, 10, 0.6)'; 
+            // Limpiamos el frame anterior con un tono azul muy oscuro para dejar estela
+            ctx.fillStyle = 'rgba(2, 4, 15, 0.6)'; 
             ctx.fillRect(0, 0, width, height);
 
-            anguloGiro += 0.015; // Velocidad a la que da vueltas
+            anguloGiro += 0.015; // Velocidad de rotación
 
             const centroX = width / 2;
-            const centroY = height / 2 + 20;
+            const centroY = height / 2; // Centrado exacto
             const escala = Math.min(width, height) * 0.28;
 
             let particulasProyectadas = [];
 
             // Calculamos la posición 3D de cada luz
             particulas.forEach(p => {
-                // Rotación sobre el eje vertical para que dé vueltas enteras
+                // Rotación sobre el eje vertical
                 let rotX = p.baseX * Math.cos(anguloGiro) - p.baseY * Math.sin(anguloGiro);
                 let rotY = p.baseX * Math.sin(anguloGiro) + p.baseY * Math.cos(anguloGiro);
                 let rotZ = p.baseZ;
 
-                // Inclinación hacia adelante para apreciar el volumen desde un poco más arriba
+                // Ligera inclinación para ver el corazón desde un buen ángulo
                 const inclinacion = 0.25; 
                 let finalX = rotX;
-                let finalY = rotY * Math.cos(inclinacion) - rotZ * Math.sin(inclinacion); // Profundidad final
-                let finalZ = rotY * Math.sin(inclinacion) + rotZ * Math.cos(inclinacion); // Altura final
+                let finalY = rotY * Math.cos(inclinacion) - rotZ * Math.sin(inclinacion); 
+                let finalZ = rotY * Math.sin(inclinacion) + rotZ * Math.cos(inclinacion); 
 
-                // Guardamos todo para ordenarlo luego
                 particulasProyectadas.push({
                     x: finalX,
-                    y: finalY, // Usamos la Y como profundidad (Z-buffer)
+                    y: finalY, // Z-buffer (profundidad real)
                     z: finalZ,
                     color: p.color,
                     size: p.size
                 });
             });
 
-            // ORDENAMIENTO 3D: Dibujamos primero las luces más lejanas y luego las más cercanas
-            // Esto es lo que crea el efecto de que el corazón sea un volumen sólido e "hinchado"
+            // Ordenamiento 3D (para que las luces de atrás no se superpongan a las de adelante)
             particulasProyectadas.sort((a, b) => b.y - a.y);
 
             // Renderizamos en pantalla
             particulasProyectadas.forEach(p => {
-                // Perspectiva: lo que está más lejos se ve más pequeño y más al centro
                 const fov = 350;
                 const perspectiva = fov / (fov + p.y * 100);
                 
                 const proyX = centroX + p.x * escala * perspectiva;
-                // Restamos la Z porque en las pantallas el eje Y crece hacia abajo, y queremos que el corazón apunte hacia arriba
+                // Restamos Z para que el corazón apunte hacia arriba
                 const proyY = centroY - p.z * escala * perspectiva;
 
                 ctx.beginPath();
@@ -163,8 +123,8 @@
                 ctx.arc(proyX, proyY, tamañoFinal, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
                 
-                // Brillo
-                ctx.shadowBlur = 4;
+                // Efecto de luz brillante
+                ctx.shadowBlur = 5;
                 ctx.shadowColor = p.color;
                 
                 ctx.fill();
