@@ -9,8 +9,8 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            /* Fondo ultravioleta muy oscuro, casi negro */
-            background: radial-gradient(circle at center, #170026 0%, #030005 100%);
+            /* Fondo de color sólido fijo: ultravioleta casi negro */
+            background-color: #05000a; 
         }
 
         canvas {
@@ -35,7 +35,7 @@
         resize();
 
         const particulas = [];
-        const numLuces = 3000; // Mantenemos la cantidad para un 3D sólido
+        const numLuces = 3000; 
 
         // Generamos el corazón usando la ecuación matemática 3D
         while (particulas.length < numLuces) {
@@ -71,9 +71,9 @@
         let anguloGiro = 0;
 
         function animar() {
-            // Limpiamos el frame anterior con un tono ultravioleta muy oscuro y transparente
-            // Esto deja esa pequeña estela de luz elegante al girar
-            ctx.fillStyle = 'rgba(8, 0, 15, 0.6)'; 
+            // Usamos exactamente el mismo color de fondo pero con opacidad 
+            // para limpiar el frame y dejar la estela sin cambiar el tono
+            ctx.fillStyle = 'rgba(5, 0, 10, 0.6)'; 
             ctx.fillRect(0, 0, width, height);
 
             anguloGiro += 0.015; // Velocidad de rotación
