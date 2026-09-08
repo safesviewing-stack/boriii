@@ -9,8 +9,8 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            /* Fondo azul oscuro elegante */
-            background: radial-gradient(circle at center, #0d1b2a 0%, #02040a 100%);
+            /* Fondo ultravioleta muy oscuro, casi negro */
+            background: radial-gradient(circle at center, #170026 0%, #030005 100%);
         }
 
         canvas {
@@ -37,7 +37,7 @@
         const particulas = [];
         const numLuces = 3000; // Mantenemos la cantidad para un 3D sólido
 
-        // Generamos el corazón usando la ecuación matemática 3D de Taubin
+        // Generamos el corazón usando la ecuación matemática 3D
         while (particulas.length < numLuces) {
             let x = (Math.random() - 0.5) * 3;
             let y = (Math.random() - 0.5) * 3;
@@ -53,11 +53,10 @@
             
             // Creamos el volumen de la cáscara del corazón
             if (valor <= 0.0 && valor > -0.2) {
-                // Generamos colores entre violeta, lila, púrpura y morado
-                // En la rueda de color HSL, estos tonos están entre el 260 y el 310
+                // Tonos violetas, lilas, púrpuras y morados
                 let tono = 260 + Math.random() * 50; 
-                let saturacion = 70 + Math.random() * 30; // Colores vivos (70% - 100%)
-                let luz = 50 + Math.random() * 35; // Desde morados profundos a lilas claros
+                let saturacion = 70 + Math.random() * 30; 
+                let luz = 50 + Math.random() * 35; 
                 
                 particulas.push({
                     baseX: x,
@@ -72,14 +71,15 @@
         let anguloGiro = 0;
 
         function animar() {
-            // Limpiamos el frame anterior con un tono azul muy oscuro para dejar estela
-            ctx.fillStyle = 'rgba(2, 4, 15, 0.6)'; 
+            // Limpiamos el frame anterior con un tono ultravioleta muy oscuro y transparente
+            // Esto deja esa pequeña estela de luz elegante al girar
+            ctx.fillStyle = 'rgba(8, 0, 15, 0.6)'; 
             ctx.fillRect(0, 0, width, height);
 
             anguloGiro += 0.015; // Velocidad de rotación
 
             const centroX = width / 2;
-            const centroY = height / 2; // Centrado exacto
+            const centroY = height / 2;
             const escala = Math.min(width, height) * 0.28;
 
             let particulasProyectadas = [];
@@ -91,7 +91,7 @@
                 let rotY = p.baseX * Math.sin(anguloGiro) + p.baseY * Math.cos(anguloGiro);
                 let rotZ = p.baseZ;
 
-                // Ligera inclinación para ver el corazón desde un buen ángulo
+                // Ligera inclinación
                 const inclinacion = 0.25; 
                 let finalX = rotX;
                 let finalY = rotY * Math.cos(inclinacion) - rotZ * Math.sin(inclinacion); 
@@ -106,7 +106,7 @@
                 });
             });
 
-            // Ordenamiento 3D (para que las luces de atrás no se superpongan a las de adelante)
+            // Ordenamiento 3D (Z-sorting)
             particulasProyectadas.sort((a, b) => b.y - a.y);
 
             // Renderizamos en pantalla
@@ -115,7 +115,6 @@
                 const perspectiva = fov / (fov + p.y * 100);
                 
                 const proyX = centroX + p.x * escala * perspectiva;
-                // Restamos Z para que el corazón apunte hacia arriba
                 const proyY = centroY - p.z * escala * perspectiva;
 
                 ctx.beginPath();
