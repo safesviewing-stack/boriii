@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corazón Morado 3D</title>
     <style>
-        body {
+        /* Forzamos el negro absoluto para que nada lo sobreescriba */
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
-            /* Fondo de color sólido fijo: negro absoluto */
-            background-color: #000000; 
+            background: #000000 !important; 
+            background-color: #000000 !important;
         }
 
         canvas {
@@ -37,7 +40,7 @@
         const particulas = [];
         const numLuces = 3000; 
 
-        // Generamos el corazón usando la ecuación matemática 3D
+        // Generamos el corazón
         while (particulas.length < numLuces) {
             let x = (Math.random() - 0.5) * 3;
             let y = (Math.random() - 0.5) * 3;
@@ -47,11 +50,9 @@
             let y2 = y * y;
             let z2 = z * z;
             
-            // Fórmula del corazón en 3D
             let a = x2 + 2.25 * y2 + z2 - 1;
             let valor = (a * a * a) - (x2 * (z2 * z)) - (0.1125 * y2 * (z2 * z));
             
-            // Creamos el volumen de la cáscara del corazón
             if (valor <= 0.0 && valor > -0.2) {
                 // Tonos violetas, lilas, púrpuras y morados
                 let tono = 260 + Math.random() * 50; 
@@ -60,8 +61,8 @@
                 
                 particulas.push({
                     baseX: x,
-                    baseY: y, // Profundidad
-                    baseZ: z, // Altura
+                    baseY: y,
+                    baseZ: z,
                     color: `hsl(${tono}, ${saturacion}%, ${luz}%)`,
                     size: Math.random() * 1.8 + 0.8
                 });
@@ -71,11 +72,11 @@
         let anguloGiro = 0;
 
         function animar() {
-            // Rastro negro para coincidir con el fondo sólido y oscuro
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; 
+            // Fondo 100% negro sólido en cada fotograma, sin transparencias
+            ctx.fillStyle = '#000000'; 
             ctx.fillRect(0, 0, width, height);
 
-            anguloGiro += 0.015; // Velocidad de rotación
+            anguloGiro += 0.015; 
 
             const centroX = width / 2;
             const centroY = height / 2;
@@ -83,14 +84,11 @@
 
             let particulasProyectadas = [];
 
-            // Calculamos la posición 3D de cada luz
             particulas.forEach(p => {
-                // Rotación sobre el eje vertical
                 let rotX = p.baseX * Math.cos(anguloGiro) - p.baseY * Math.sin(anguloGiro);
                 let rotY = p.baseX * Math.sin(anguloGiro) + p.baseY * Math.cos(anguloGiro);
                 let rotZ = p.baseZ;
 
-                // Ligera inclinación
                 const inclinacion = 0.25; 
                 let finalX = rotX;
                 let finalY = rotY * Math.cos(inclinacion) - rotZ * Math.sin(inclinacion); 
@@ -98,17 +96,15 @@
 
                 particulasProyectadas.push({
                     x: finalX,
-                    y: finalY, // Z-buffer (profundidad real)
+                    y: finalY,
                     z: finalZ,
                     color: p.color,
                     size: p.size
                 });
             });
 
-            // Ordenamiento 3D (Z-sorting)
             particulasProyectadas.sort((a, b) => b.y - a.y);
 
-            // Renderizamos en pantalla
             particulasProyectadas.forEach(p => {
                 const fov = 350;
                 const perspectiva = fov / (fov + p.y * 100);
@@ -121,7 +117,6 @@
                 ctx.arc(proyX, proyY, tamañoFinal, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
                 
-                // Efecto de luz brillante
                 ctx.shadowBlur = 5;
                 ctx.shadowColor = p.color;
                 
