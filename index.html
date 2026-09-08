@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Bori ❤️</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #050505; /* Fondo oscuro para que resalten las luces */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        /* El mensaje central */
+        #mensaje {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 15px #ff2a75, 0 0 30px #ff2a75;
+            pointer-events: none; /* Para no interferir con el canvas */
+            animation: latido 2s infinite ease-in-out;
+        }
+        /* Animación de latido para el texto */
+        @keyframes latido {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mensaje">Para Bori ❤️</div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Fórmula matemática para la forma del corazón
+        function corazonX(t) {
+            return 16 * Math.pow(Math.sin(t), 3);
+        }
+        function corazonY(t) {
+            return -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        }
+
+        const particulas = [];
+        const numLuces = 1500; // Cantidad de luces pequeñas
+
+        // Generar las luces que forman el corazón
+        for (let i = 0; i < numLuces; i++) {
+            const t = Math.random() * Math.PI * 2;
+            
+            // Coordenadas base del corazón
+            const hx = corazonX(t);
+            const hy = corazonY(t);
+            
+            // Añadir profundidad (eje Z) y dispersión para dar volumen
+            const dispersion = 1.5;
+            const x = hx + (Math.random() - 0.5) * dispersion;
+            const y = hy + (Math.random() - 0.5) * dispersion;
+            const z = (Math.random() - 0.5) * 8; 
+
+            // Escala del corazón
+            const escala = 12;
+
+            particulas.push({
+                x: x * escala,
+                y: y * escala,
+                z: z * escala,
+                // Colores entre rosa, rojo brillante y toques blancos
+                color: `hsl(${330 + Math.random() * 30}, 100%, ${60 + Math.random() * 40}%)`
+            });
+        }
+
+        let angulo = 0;
+
+        function animar() {
+            // Fondo con ligera transparencia para dejar un rastro bonito (efecto estela)
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            angulo += 0.015; // Velocidad de la vuelta
+
+            const centroX = width / 2;
+            const centroY = height / 2 + 20;
+
+            particulas.forEach(p => {
+                // Rotación en 3D (sobre el eje Y)
+                const cos = Math.cos(angulo);
+                const sin = Math.sin(angulo);
+                
+                const rotX = p.x * cos - p.z * sin;
+                const rotZ = p.z * cos + p.x * sin;
+                const rotY = p.y;
+
+                // Proyección de 3D a 2D para la pantalla
+                const fov = 400; // Campo de visión
+                const perspectiva = fov / (fov + rotZ + 150);
+                
+                const proyX = centroX + rotX * perspectiva;
+                const proyY = centroY + rotY * perspectiva;
+
+                // Dibujar la luz
+                ctx.beginPath();
+                // Tamaño de la luz varía según la perspectiva (más grande si está más cerca)
+                const radio = Math.max(0.5, 2.5 * perspectiva);
+                ctx.arc(proyX, proyY, radio, 0, Math.PI * 2);
+                
+                // Efecto de resplandor (Glow)
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animar);
+        }
+
+        animar();
+    </script>
+</body>
+</html>
