@@ -9,8 +9,8 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            /* Fondo de color sólido fijo: ultravioleta casi negro */
-            background-color: #05000a; 
+            /* Fondo de color sólido fijo: negro absoluto */
+            background-color: #000000; 
         }
 
         canvas {
@@ -71,9 +71,8 @@
         let anguloGiro = 0;
 
         function animar() {
-            // Usamos exactamente el mismo color de fondo pero con opacidad 
-            // para limpiar el frame y dejar la estela sin cambiar el tono
-            ctx.fillStyle = 'rgba(5, 0, 10, 0.6)'; 
+            // Rastro negro para coincidir con el fondo sólido y oscuro
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; 
             ctx.fillRect(0, 0, width, height);
 
             anguloGiro += 0.015; // Velocidad de rotación
