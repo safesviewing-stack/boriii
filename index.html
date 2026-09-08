@@ -3,43 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para Bori ❤️</title>
+    <title>Para Bori</title>
+    <!-- Importamos fuentes elegantes de Google Fonts -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Montserrat:wght@300&display=swap');
+
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #050505; /* Fondo oscuro para que resalten las luces */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Fondo elegante: un gradiente radial muy oscuro (ciruela oscuro a negro puro) */
+            background: radial-gradient(circle at center, #1b000b 0%, #000000 100%);
+            font-family: 'Montserrat', sans-serif;
         }
+
         canvas {
             display: block;
         }
-        /* El mensaje central */
-        #mensaje {
+
+        /* Contenedor del texto centrado */
+        #texto-elegante {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 3rem;
-            font-weight: bold;
             text-align: center;
-            text-shadow: 0 0 15px #ff2a75, 0 0 30px #ff2a75;
-            pointer-events: none; /* Para no interferir con el canvas */
-            animation: latido 2s infinite ease-in-out;
+            pointer-events: none; /* Para que el ratón no interfiera con el canvas */
+            z-index: 10;
         }
-        /* Animación de latido para el texto */
-        @keyframes latido {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); }
+
+        /* Estilo para el nombre */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 5.5rem;
+            margin: 0;
+            font-style: italic;
+            font-weight: 600;
+            letter-spacing: 2px;
+            /* Efecto de texto color oro rosa / dorado brillante */
+            background: linear-gradient(45deg, #ffd700, #ffb6c1, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 30px rgba(255, 182, 193, 0.4);
+            animation: flotar 4s ease-in-out infinite;
+        }
+
+        /* Subtítulo elegante */
+        p {
+            font-size: 1rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            color: #ffb6c1;
+            opacity: 0.7;
+            animation: flotar 4s ease-in-out infinite 0.2s; /* Ligero retraso */
+        }
+
+        /* Animación suave de flotación para el texto */
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
         }
     </style>
 </head>
 <body>
 
-    <div id="mensaje">Para Bori ❤️</div>
+    <div id="texto-elegante">
+        <h1>Bori</h1>
+        <p>Eres mi universo</p>
+    </div>
+
     <canvas id="canvas"></canvas>
 
     <script>
@@ -54,81 +87,101 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // Fórmula matemática para la forma del corazón
-        function corazonX(t) {
-            return 16 * Math.pow(Math.sin(t), 3);
-        }
-        function corazonY(t) {
-            return -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-        }
-
         const particulas = [];
-        const numLuces = 1500; // Cantidad de luces pequeñas
+        const numLuces = 3500; // Gran cantidad de luces para formar un volumen sólido
 
-        // Generar las luces que forman el corazón
-        for (let i = 0; i < numLuces; i++) {
-            const t = Math.random() * Math.PI * 2;
+        // Generamos el corazón usando la ecuación matemática 3D de Taubin
+        while (particulas.length < numLuces) {
+            // Buscamos coordenadas al azar dentro de un cubo virtual
+            let x = (Math.random() - 0.5) * 3;
+            let y = (Math.random() - 0.5) * 3;
+            let z = (Math.random() - 0.5) * 3;
             
-            // Coordenadas base del corazón
-            const hx = corazonX(t);
-            const hy = corazonY(t);
+            let x2 = x * x;
+            let y2 = y * y;
+            let z2 = z * z;
             
-            // Añadir profundidad (eje Z) y dispersión para dar volumen
-            const dispersion = 1.5;
-            const x = hx + (Math.random() - 0.5) * dispersion;
-            const y = hy + (Math.random() - 0.5) * dispersion;
-            const z = (Math.random() - 0.5) * 8; 
-
-            // Escala del corazón
-            const escala = 12;
-
-            particulas.push({
-                x: x * escala,
-                y: y * escala,
-                z: z * escala,
-                // Colores entre rosa, rojo brillante y toques blancos
-                color: `hsl(${330 + Math.random() * 30}, 100%, ${60 + Math.random() * 40}%)`
-            });
+            // Fórmula del corazón en 3D (Ecuación de Taubin)
+            // Adaptamos los ejes: 'x' ancho, 'y' profundidad, 'z' altura
+            let a = x2 + 2.25 * y2 + z2 - 1;
+            let valor = (a * a * a) - (x2 * (z2 * z)) - (0.1125 * y2 * (z2 * z));
+            
+            // Si el valor está entre -0.15 y 0.0, es la "cáscara" del corazón (volumen hueco)
+            if (valor < 0.0 && valor > -0.15) {
+                // Colores elegantes: Dorados, Oro Rosa y destellos blancos
+                let tonoHSL = Math.random() < 0.5 ? 340 + Math.random() * 20 : 35 + Math.random() * 15; 
+                let brillo = 50 + Math.random() * 50;
+                
+                particulas.push({
+                    baseX: x,
+                    baseY: y,
+                    baseZ: z, // Guardamos la forma original
+                    color: `hsl(${tonoHSL}, 80%, ${brillo}%)`,
+                    size: Math.random() * 1.5 + 0.5,
+                    faseOnda: Math.random() * Math.PI * 2 // Para que las luces "respiren"
+                });
+            }
         }
 
-        let angulo = 0;
+        let anguloY = 0;
+        let anguloX = 0.2; // Ligera inclinación para apreciar mejor el 3D
+        let tiempo = 0;
 
         function animar() {
-            // Fondo con ligera transparencia para dejar un rastro bonito (efecto estela)
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
+            // Fondo con rastro muy suave (estela elegante)
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(15, 0, 10, 0.4)'; 
             ctx.fillRect(0, 0, width, height);
 
-            angulo += 0.015; // Velocidad de la vuelta
+            // Modo de fusión para que las partículas brillen como estrellas
+            ctx.globalCompositeOperation = 'lighter';
+
+            anguloY += 0.006; // Rotación lenta y majestuosa
+            tiempo += 0.02;
 
             const centroX = width / 2;
-            const centroY = height / 2 + 20;
+            const centroY = height / 2 + 30; // Bajamos un poco para centrar visualmente el corazón
+            const escala = Math.min(width, height) * 0.25;
+
+            const cosY = Math.cos(anguloY);
+            const sinY = Math.sin(anguloY);
+            const cosX = Math.cos(anguloX);
+            const sinX = Math.sin(anguloX);
 
             particulas.forEach(p => {
-                // Rotación en 3D (sobre el eje Y)
-                const cos = Math.cos(angulo);
-                const sin = Math.sin(angulo);
-                
-                const rotX = p.x * cos - p.z * sin;
-                const rotZ = p.z * cos + p.x * sin;
-                const rotY = p.y;
+                // Movimiento de "respiración" para cada partícula
+                let px = p.baseX + Math.sin(tiempo + p.faseOnda) * 0.02;
+                let py = p.baseY + Math.cos(tiempo + p.faseOnda) * 0.02;
+                let pz = p.baseZ + Math.sin(tiempo - p.faseOnda) * 0.02;
 
-                // Proyección de 3D a 2D para la pantalla
-                const fov = 400; // Campo de visión
-                const perspectiva = fov / (fov + rotZ + 150);
-                
-                const proyX = centroX + rotX * perspectiva;
-                const proyY = centroY + rotY * perspectiva;
+                // Rotación en Y (dar la vuelta)
+                let rx1 = px * cosY - py * sinY;
+                let ry1 = py * cosY + px * sinY;
+                let rz1 = pz;
 
-                // Dibujar la luz
+                // Rotación en X (inclinación)
+                let rx2 = rx1;
+                let ry2 = ry1 * cosX - rz1 * sinX;
+                let rz2 = rz1 * cosX + ry1 * sinX;
+
+                // Proyección 3D -> 2D
+                // La variable rz2 define qué tan cerca o lejos está la luz
+                const perspectiva = 400 / (400 - rz2 * 100);
+                
+                // NOTA: Invertimos rz2 en el eje vertical para que el corazón no salga boca abajo
+                const proyX = centroX + rx2 * escala * perspectiva;
+                const proyY = centroY - rz2 * escala * perspectiva;
+
+                // Dibujar la partícula
                 ctx.beginPath();
-                // Tamaño de la luz varía según la perspectiva (más grande si está más cerca)
-                const radio = Math.max(0.5, 2.5 * perspectiva);
-                ctx.arc(proyX, proyY, radio, 0, Math.PI * 2);
-                
-                // Efecto de resplandor (Glow)
+                const tamaño = Math.max(0.1, p.size * perspectiva);
+                ctx.arc(proyX, proyY, tamaño, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
-                ctx.shadowBlur = 10;
+                
+                // Efecto de resplandor (glow)
+                ctx.shadowBlur = 8;
                 ctx.shadowColor = p.color;
+                
                 ctx.fill();
             });
 
