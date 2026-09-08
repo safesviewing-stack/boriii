@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Ajuste importante para que se adapte perfecto al tamaño de la pantalla del móvil -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Corazón Morado 3D</title>
     <style>
         /* Forzamos el negro absoluto para que nada lo sobreescriba */
@@ -31,8 +32,18 @@
         
         let width, height;
         function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            width = window.innerWidth;
+            height = window.innerHeight;
+            
+            // OPTIMIZACIÓN MÓVIL: Corrige la resolución para que las luces 
+            // se vean nítidas en las pantallas de alta calidad (Retina) de los móviles
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
         }
         window.addEventListener('resize', resize);
         resize();
@@ -72,15 +83,19 @@
         let anguloGiro = 0;
 
         function animar() {
-            // Fondo 100% negro sólido en cada fotograma, sin transparencias
+            // Fondo 100% negro sólido
             ctx.fillStyle = '#000000'; 
             ctx.fillRect(0, 0, width, height);
 
             anguloGiro += 0.015; 
 
             const centroX = width / 2;
-            const centroY = height / 2;
-            const escala = Math.min(width, height) * 0.28;
+            
+            // AQUÍ LO BAJAMOS UN POQUITÍN: (le sumamos 40 píxeles hacia abajo)
+            const centroY = (height / 2) + 40; 
+            
+            // Escala ajustada para que quepa perfectamente tanto en PC como en vertical en móvil
+            const escala = Math.min(width, height) * 0.32; 
 
             let particulasProyectadas = [];
 
@@ -117,7 +132,8 @@
                 ctx.arc(proyX, proyY, tamañoFinal, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
                 
-                ctx.shadowBlur = 5;
+                // Brillo de las luces
+                ctx.shadowBlur = 4;
                 ctx.shadowColor = p.color;
                 
                 ctx.fill();
